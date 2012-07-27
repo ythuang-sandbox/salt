@@ -1,13 +1,53 @@
 # deployment of salt-minions
 
+import os
 from fabric.contrib import files
-from fabric.api import env, sudo, put
+from fabric.api import env, sudo, put, task, roles
 from fabric.colors import red
+from ConfigParser import ConfigParser
 
-env.user = 'setusername'
-env.password = 'setpassword'
-env.hosts = []
+work_path = os.path.dirname( __file__ )
+cfg_name = '/salt_deploy.cfg'
+cfg_file = work_path + cfg_name
+if not os.path.isfile(cfg_file ):
+    print red("Missing config file. (%s)" % cfg_name)
+    os.sys.exit()
 
+env.config = ConfigParser
+env.config.read(cfg_file)
+env.user = env.config.get('ENV','user')
+env.password = env.config.get('ENV','password')
+env.roledefs['MASTER']= env.config.get('ENV','master')
+env.roledefs['MINION']= env.config.get('ENV','minion')
+env.roledefs['ALL']= env.roledefs['MASTER'] + env.roledefs['MINION']
+
+@task
+def deploy():
+    '''
+        deploy Saltstack based on configuration in salt_deploy.cfg
+    '''
+    if len(env.roledefs['ALL']) > 0:
+        deploy_pre()
+
+    if len(env.roledefs['MASTER']) > 0:
+        deploy_master()
+
+    if len(env.roledefs['MINION']) > 0:
+        deploy_minion()
+
+@task
+@roles('MASTER')
+def deploy_master():
+    deploy_salt("master")
+
+@task
+@roles('MINION')
+def deploy_master():
+    deploy_salt("minion")
+
+
+@task
+@roles('ALL')
 def deploy_pre():
     '''
         Saltstack deployment pre requisites
@@ -16,15 +56,14 @@ def deploy_pre():
     sudo('add-apt-repository -y ppa:saltstack/salt')
     sudo('apt-get update')
 
-
-def deploy_salt(salt_services="minion"):
+@task
+def deploy_salt(salt_services):
     '''
         Deploy salt services
 
         takes as argument list of services to install, split in comma
         ie, "master,minion"
     '''
-    deploy_pre()
 
     service_list = salt_services.split()
 
@@ -32,10 +71,11 @@ def deploy_salt(salt_services="minion"):
         if service in ['minion', 'master']:
             install_salt(service)
             config_salt(service)
+            restart_salt_service(service)
         else:
             print red("ERROR: incorrect salt service specified: %s" % service)
 
-
+@task
 def install_salt(service_name):
     '''
         Install salt-minion package
@@ -43,8 +83,16 @@ def install_salt(service_name):
     cmd_line = 'apt-get -y install salt-%s' % service_name
     sudo(cmd_line)
 
+@task
+def restart_salt_service(service_name):
+    '''
+        Restart salt services
+    '''
+    cmd_line = 'service salt-%s restart' % service_name
+    sudo(cmd_line )
 
-def config_salt(service_name='minion'):
+@task
+def config_salt(service_name):
     '''
         Configure salt
 
