@@ -8,59 +8,64 @@ env.password = 'setpassword'
 env.hosts = []
 
 def deploy_pre():
+    '''
+        Saltstack deployment pre requisites
+    '''
     install_py_soft_properties()
     add_saltstack_ppa()
     update_repo()
 
-def deploy_salt_master():
-    deploy_pre()
-    install_salt_master()
-    config_salt_master()
+def deploy_salt(salt_services="minion"):
+    '''
+        Deploy salt services
 
-def deploy_salt_minion():
+        takes as argument list of services to install, split in comma
+        ie, "master,minion"
+    '''
     deploy_pre()
-    install_salt_minion()
-    config_salt_minion()
 
+    service_list = salt_services.split()
+
+    for service in service_list:
+        if service in ['minion', 'master']:
+            install_salt(service)
+            config_salt(service)
+        else:
+            print fabric.colors.red("ERROR: incorrect salt service specified: %s" % service )
 
 def install_py_soft_properties():
     '''
-        install python-software-properties software package
+        Install python-software-properties software package
     '''
     sudo('apt-get -y install python-software-properties')
 
 def add_saltstack_ppa():
     '''
-        add saltstack ppa
+        Add saltstack ppa
     '''
     sudo('add-apt-repository -y ppa:saltstack/salt')
 
 def update_repo():
     '''
-        update the repository
+        Update the repository
     '''
     sudo('apt-get update')
 
-def install_salt_minion():
+def install_salt(service_name):
     '''
-        install salt-minion package
+        Install salt-minion package
     '''
-    sudo('apt-get install salt-minion')
+    cmd_line = 'apt-get install salt-%s' % service_name
+    sudo(cmd_line)
 
-def install_salt_master():
-    '''
-        install salt-master package
-    '''
-    sudo('apt-get install salt-master')
 
-def config_salt_minion():
+def config_salt(service_name = 'minion'):
     '''
-        configure salt-minion
-    '''
-    fabric.operations.put('minion','/etc/salt/minion',use_sudo=True,mode=0644)
+        Configure salt
 
-def config_salt_master():
+        takes as argument the configuration file name
+        valid names are master and minion
     '''
-        configure salt-master
-    '''
-    fabric.operations.put('master','/etc/salt/master',use_sudo=True,mode=0644)
+    remote_path = '/etc/salt/%s' % service_name
+    fabric.operations.put(service_name,remote_path,use_sudo=True,mode=0644)
+
