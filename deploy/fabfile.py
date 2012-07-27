@@ -40,7 +40,7 @@ def install_salt(service_name):
     '''
         Install salt-minion package
     '''
-    cmd_line = 'apt-get install salt-%s' % service_name
+    cmd_line = 'apt-get -y install salt-%s' % service_name
     sudo(cmd_line)
 
 
