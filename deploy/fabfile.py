@@ -66,7 +66,6 @@ def deploy_salt(salt_services):
         else:
             print red("ERROR: incorrect salt service specified: %s" % service)
 
-@task
 def install_salt(service_name):
     '''
         Install salt-minion package
@@ -74,7 +73,6 @@ def install_salt(service_name):
     cmd_line = 'apt-get -y install salt-%s' % service_name
     sudo(cmd_line)
 
-@task
 def restart_salt_service(service_name):
     '''
         Restart salt services
@@ -82,7 +80,6 @@ def restart_salt_service(service_name):
     cmd_line = 'service salt-%s restart' % service_name
     sudo(cmd_line )
 
-@task
 def config_salt(service_name):
     '''
         Configure salt
