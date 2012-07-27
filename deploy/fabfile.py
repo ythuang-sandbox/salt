@@ -1,7 +1,6 @@
 # deployment of salt-minions
 
 import os
-import re
 from fabric.contrib import files
 from fabric.api import env, sudo, put, task, roles
 from fabric.colors import red
@@ -21,12 +20,25 @@ env.config = ConfigParser()
 env.config.read(cfg_file)
 env.user = env.config.get('ENV', 'user')
 env.password = env.config.get('ENV', 'password')
-sep = r'[, ]'
+env.roledefs = {'ALL': [], 'MASTER': [], 'MINION': []}
+
 cfg_str = env.config.get('ENV', 'master')
-env.roledefs['MASTER'] = re.split(sep, cfg_str)
+print cfg_str
+if len(cfg_str) > 0:
+    env.roledefs['MASTER'].extend(map(str.strip, cfg_str.split(',')))
+
 cfg_str = env.config.get('ENV', 'minion')
-env.roledefs['MINION'] = re.split(sep, cfg_str)
-env.roledefs['ALL'] = env.roledefs['MASTER'] + env.roledefs['MINION']
+print cfg_str
+if len(cfg_str) > 0:
+    env.roledefs['MINION'].extend(map(str.strip, cfg_str.split(',')))
+
+if len(cfg_str) > 0:
+    env.roledefs['ALL'].extend(env.roledefs['MASTER'])
+    env.roledefs['ALL'].extend(env.roledefs['MINION'])
+
+print "master: ", env.roledefs['MASTER']
+print "minion: ", env.roledefs['MINION']
+print "all: ", env.roledefs['ALL']
 
 @task
 def deploy():
