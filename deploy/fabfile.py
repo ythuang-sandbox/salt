@@ -23,22 +23,16 @@ env.password = env.config.get('ENV', 'password')
 env.roledefs = {'ALL': [], 'MASTER': [], 'MINION': []}
 
 cfg_str = env.config.get('ENV', 'master')
-print cfg_str
 if len(cfg_str) > 0:
     env.roledefs['MASTER'].extend(map(str.strip, cfg_str.split(',')))
 
 cfg_str = env.config.get('ENV', 'minion')
-print cfg_str
 if len(cfg_str) > 0:
     env.roledefs['MINION'].extend(map(str.strip, cfg_str.split(',')))
 
 if len(cfg_str) > 0:
     env.roledefs['ALL'].extend(env.roledefs['MASTER'])
     env.roledefs['ALL'].extend(env.roledefs['MINION'])
-
-print "master: ", env.roledefs['MASTER']
-print "minion: ", env.roledefs['MINION']
-print "all: ", env.roledefs['ALL']
 
 @task
 def deploy():
