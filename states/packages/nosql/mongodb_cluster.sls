@@ -13,12 +13,14 @@ mongodb_key:
   
 mongodb_conf:
   file.append:
-  - name: /etc/mongodb.conf
-  - text:
-    - replSet = WiLog
-    - rest = true
-    - auth = true
-    - keyFile = /etc/mongodb.key
+    - name: /etc/mongodb.conf
+    - text:
+      - replSet = WiLog
+      - rest = true
+      - auth = true
+      - keyFile = /etc/mongodb.key
+    - require:
+      - pkg: mongodb
 
 extend:
   mongodb:

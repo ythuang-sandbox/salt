@@ -22,6 +22,7 @@ mongodb:
     - name: mongodb-10gen
   require:
     - cmd: mongodb_repo_sync
-
   service:
     - running
+    - watch:
+      file: /etc/mongodb.conf

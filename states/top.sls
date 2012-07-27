@@ -9,4 +9,8 @@ base:
   'roles:mongodb':
     - match: grain
     - packages.nosql.mongodb
+  
+  'roles:mongodb_cluster':
+    - match: grain
+    - packages.nosql.mongodb_cluster
 
