@@ -13,7 +13,7 @@ if not os.path.isfile(cfg_file ):
     print red("Missing config file. (%s)" % cfg_name)
     os.sys.exit()
 
-env.config = ConfigParser.ConfigParser()
+env.config = ConfigParser()
 env.config.read(cfg_file)
 env.user = env.config.get('ENV','user')
 env.password = env.config.get('ENV','password')
