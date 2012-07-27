@@ -20,8 +20,8 @@ env.config = ConfigParser()
 env.config.read(cfg_file)
 env.user = env.config.get('ENV','user')
 env.password = env.config.get('ENV','password')
-env.roledefs['MASTER']= env.config.get('ENV','master')
-env.roledefs['MINION']= env.config.get('ENV','minion')
+env.roledefs['MASTER']= env.config.get('ENV','master').split()
+env.roledefs['MINION']= env.config.get('ENV','minion').split()
 env.roledefs['ALL']= env.roledefs['MASTER'] + env.roledefs['MINION']
 
 @task
