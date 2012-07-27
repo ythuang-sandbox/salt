@@ -5,7 +5,9 @@ from fabric.contrib import files
 from fabric.api import env, sudo, put, task, roles
 from fabric.colors import red
 from ConfigParser import ConfigParser
+import fabric.tasks
 
+# check for configuration file
 work_path = os.path.dirname( __file__ )
 cfg_name = '/salt_deploy.cfg'
 cfg_file = work_path + cfg_name
@@ -13,6 +15,7 @@ if not os.path.isfile(cfg_file ):
     print red("Missing config file. (%s)" % cfg_name)
     os.sys.exit()
 
+# load configuration file information
 env.config = ConfigParser()
 env.config.read(cfg_file)
 env.user = env.config.get('ENV','user')
@@ -27,26 +30,15 @@ def deploy():
         deploy Saltstack based on configuration in salt_deploy.cfg
     '''
     if len(env.roledefs['ALL']) > 0:
-        deploy_pre()
+        fabric.tasks.execute(deploy_pre)
 
     if len(env.roledefs['MASTER']) > 0:
-        deploy_master()
+        fabric.tasks.execute(deploy_salt,"master",roles=['MASTER'])
 
     if len(env.roledefs['MINION']) > 0:
-        deploy_minion()
-
-@task
-@roles('MASTER')
-def deploy_master():
-    deploy_salt("master")
-
-@task
-@roles('MINION')
-def deploy_master():
-    deploy_salt("minion")
+        fabric.tasks.execute(deploy_salt,"minion",roles=['MINION'])
 
 
-@task
 @roles('ALL')
 def deploy_pre():
     '''
@@ -56,7 +48,6 @@ def deploy_pre():
     sudo('add-apt-repository -y ppa:saltstack/salt')
     sudo('apt-get update')
 
-@task
 def deploy_salt(salt_services):
     '''
         Deploy salt services
