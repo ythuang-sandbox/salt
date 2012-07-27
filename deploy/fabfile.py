@@ -1,7 +1,7 @@
 # deployment of salt-minions
 
 from fabric.contrib import files
-from fabric.api import env
+from fabric.api import env, sudo
 
 env.user = 'setusername'
 env.password = 'setpassword'
