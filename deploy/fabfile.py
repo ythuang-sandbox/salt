@@ -1,7 +1,8 @@
 # deployment of salt-minions
 
 from fabric.contrib import files
-from fabric.api import env, sudo
+from fabric.api import env, sudo, put
+from fabric.colors import red
 
 env.user = 'setusername'
 env.password = 'setpassword'
@@ -31,7 +32,7 @@ def deploy_salt(salt_services="minion"):
             install_salt(service)
             config_salt(service)
         else:
-            print fabric.colors.red("ERROR: incorrect salt service specified: %s" % service )
+            print red("ERROR: incorrect salt service specified: %s" % service )
 
 def install_py_soft_properties():
     '''
@@ -67,5 +68,5 @@ def config_salt(service_name = 'minion'):
         valid names are master and minion
     '''
     remote_path = '/etc/salt/%s' % service_name
-    fabric.operations.put(service_name,remote_path,use_sudo=True,mode=0644)
+    put(service_name,remote_path,use_sudo=True,mode=0644)
 
