@@ -12,9 +12,10 @@ def deploy_pre():
     '''
         Saltstack deployment pre requisites
     '''
-    install_py_soft_properties()
-    add_saltstack_ppa()
-    update_repo()
+    sudo('apt-get -y install python-software-properties')
+    sudo('add-apt-repository -y ppa:saltstack/salt')
+    sudo('apt-get update')
+
 
 def deploy_salt(salt_services="minion"):
     '''
@@ -32,25 +33,8 @@ def deploy_salt(salt_services="minion"):
             install_salt(service)
             config_salt(service)
         else:
-            print red("ERROR: incorrect salt service specified: %s" % service )
+            print red("ERROR: incorrect salt service specified: %s" % service)
 
-def install_py_soft_properties():
-    '''
-        Install python-software-properties software package
-    '''
-    sudo('apt-get -y install python-software-properties')
-
-def add_saltstack_ppa():
-    '''
-        Add saltstack ppa
-    '''
-    sudo('add-apt-repository -y ppa:saltstack/salt')
-
-def update_repo():
-    '''
-        Update the repository
-    '''
-    sudo('apt-get update')
 
 def install_salt(service_name):
     '''
@@ -60,7 +44,7 @@ def install_salt(service_name):
     sudo(cmd_line)
 
 
-def config_salt(service_name = 'minion'):
+def config_salt(service_name='minion'):
     '''
         Configure salt
 
@@ -68,5 +52,5 @@ def config_salt(service_name = 'minion'):
         valid names are master and minion
     '''
     remote_path = '/etc/salt/%s' % service_name
-    put(service_name,remote_path,use_sudo=True,mode=0644)
+    put(service_name, remote_path, use_sudo=True, mode=0644)
 
